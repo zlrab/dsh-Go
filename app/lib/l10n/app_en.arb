@@ -5806,7 +5806,7 @@
   "stateUiWeb": "Web",
   "statePluginRegistryProgressUnknown": "Downloading from {registry} (registry {attempt}/null)",
   "stateProviderTokenCountInvalid": "Enter a number, like 128K",
-  "appSlogan": "Anytime, anywhere. Just Go!",
+  "appSlogan": "Turns itself. God mode.",
   "tavernTitle": "Tavern",
   "tavernImport": "Import",
   "tavernEmptyTitle": "No characters yet",

@@ -73,3 +73,14 @@ git checkout main-phone && git merge main
 | `update/installer.dart` | workshop 查 `freeBytes`；`dsh/update` 通道仍提供 `info` |
 | `app/lib/l10n/parts/*update*.arb` | 上游 157 提交里 0 次改动；保留未使用文案，避免动 l10n 与指南校验 |
 | `tooling/{apk_delta,release_assets}.py`、`services/share-worker/scripts/*` | 服务端发版流水线，与 App 无关；内部测试互相引用，删了只会制造冲突 |
+
+## 六、改文案必看：l10n 是「parts → 合并 → gen」三段
+
+改 `app/lib/l10n/parts/*_{zh,en}.arb` **不会立刻生效**，必须重跑合并：
+
+```bash
+cd app && python3 tool/l10n_merge.py     # 生成 app_{zh,en}.arb 并跑 flutter gen-l10n
+```
+
+`lib/l10n/app_*.arb` 与 `lib/l10n/gen/` 都是生成物（`l10n.yaml` 顶部写明不要手改）。
+漏跑合并的典型症状：改了 parts 里的 `appSlogan`，装机后界面仍是旧文案。
