@@ -34,8 +34,15 @@ def read(name):
 
 def paths(svg):
     out = {}
-    for m in re.finditer(r'<path id="([^"]+)"[^>]*?\sd="([^"]+)"', svg):
-        out[m.group(1)] = parse_d(m.group(2))
+    for m in re.finditer(r'<path\b([^>]*)>', svg):
+        attrs = m.group(1)
+        pid = re.search(r'id="([^"]+)"', attrs)
+        d = re.search(r'\sd="([^"]+)"', attrs)
+        if not pid or not d:
+            continue
+        # 同一个图层可以拆成多个路径：id 用 'name:' 前缀合并（自举环 = 环段 + 两个端点圆）
+        base = pid.group(1).split(':')[0]
+        out.setdefault(base, []).extend(parse_d(d.group(1)))
     return out
 
 

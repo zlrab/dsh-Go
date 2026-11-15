@@ -212,10 +212,10 @@ class AppIconArt {
   static AppIconArt of(AppIcon icon) => switch (icon) {
     // The default icon; on the phone its glyph is the original art, here the
     // brand master's glass (the same fit).
-    AppIcon.mist => const AppIconArt._(Color(0xFF9AB0E8), Color(0xFF405AAD), AppIconGlyph.glassDark),
-    AppIcon.night => const AppIconArt._(Color(0xFF2C3D6C), Color(0xFF0C122D), AppIconGlyph.glassDark),
-    AppIcon.frost => const AppIconArt._(Color(0xFFFCFDFF), Color(0xFFDDE5F8), AppIconGlyph.glassLight),
-    AppIcon.ink => const AppIconArt._(Color(0xFF292B30), Color(0xFF0D0E11), AppIconGlyph.mono, Color(0xFFF5F7FB)),
+    AppIcon.mist => const AppIconArt._(Color(0xFF1E2B4D), Color(0xFF0B1220), AppIconGlyph.glassDark),
+    AppIcon.night => const AppIconArt._(Color(0xFF17244A), Color(0xFF04070E), AppIconGlyph.glassDark),
+    AppIcon.frost => const AppIconArt._(Color(0xFFFFFFFF), Color(0xFFDCE6F7), AppIconGlyph.glassLight),
+    AppIcon.ink => const AppIconArt._(Color(0xFF26282D), Color(0xFF0A0B0E), AppIconGlyph.mono, Color(0xFFF2F5FA)),
   };
 }
 
