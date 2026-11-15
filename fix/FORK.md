@@ -1,0 +1,55 @@
+# fork 分支与上游同步
+
+> 2026-11-15 与用户确认。上游：`github.com/ccch1mneyyy/dsh-go`；fork：`github.com/zlrab/dsh-Go`。
+
+## 一、分支模型
+
+| 分支 | 内容 | 规则 |
+|---|---|---|
+| `main` | 上游镜像 | **禁止任何本地提交**，只做快进（GitHub「Sync fork」按钮或 `git merge --ff-only`） |
+| `main-phone` | 产线：`main` + 所有 `fork:` 提交 | 真正用来构建、发版的分支；工作区平时停在这里 |
+| `sync/YYYYMMDD` | 每次同步的试验分支（可选） | 冲突多时先在这里解，验证通过再并入 `main-phone` |
+
+合并方向**永远**是 `main → main-phone`。一旦 main 上出现本地提交，GitHub 的「Sync fork」就不能快进了。
+
+## 二、同步流程
+
+```bash
+# 1) 用户在 GitHub 上：仓库页 → Sync fork → Update branch（main 快进到上游）
+
+# 2) 本地拉 main（只允许快进）
+cd /sdcard/DshWorkSpace/AndroidProjects/dsh-Go
+git fetch origin
+git checkout main && git merge --ff-only origin/main
+
+# 3) 并入产线分支
+git checkout main-phone && git merge main
+
+# 4) 逐项对比：本地改动 vs 上游实现 → 给出结论与建议 → 由用户决定是否改用上游
+#    （见下方「本地改动登记」表；每项都要在此表留下结论）
+
+# 5) 验证门：debug 构建（7~8 分钟）→ adb 装机 → 用户真机测
+#    → 用户确认后 release 构建 + fix/99-verify-apk.sh
+```
+
+只想要个别上游修复时用精选：`git cherry-pick -x <sha>`（用 `git log main-phone..main -- <文件>` 挑）。
+
+## 三、本地改动登记（每次同步后更新）
+
+| # | 改动 | 涉及文件 | 性质 | 上游是否已实现 | 结论 |
+|---|---|---|---|---|---|
+| 1 | `applicationId=com.lizow.dsh`、lint/资源压缩/R8/符号抽取关闭、debug 变体后缀 | `app/android/app/build.gradle.kts`、`gradle.properties` | fork 专有 | 否 | 保留 |
+| 2 | 应用名资源化：`@string/app_name` = DSH Go，debug 覆盖为「DSH Go 调试」 | `AndroidManifest.xml`、`res/values/strings.xml`、`src/debug/res/values/strings.xml` | fork 专有 | 否 | 保留 |
+| 3 | proot pin：`5.1.107.98 → 5.1.107.102`（HANDOVER 5.2① 的手工修补，**未更新 sha256 pin**） | `runtime/build-runtime.sh` | 临时修补 | **是**：上游 `bf22ae01`（2026-11-15）改版本号 + 3 个 sha256 pin，比我们完整 | **待评估**：等 main 同步后对比，用户决定是否丢弃本地版 |
+| 4 | 移除应用内更新链路（包名/签名已改，原更新链路装不上） | `app/lib/update/**`、`state/update_state.dart`、`ui/update/**`、`android/**/update/**`、l10n、测试、tooling、docs | fork 专有 | 上游仍在维护 | 待实施（见评估：净删约 13k 行，需先抽共享设施） |
+| 5 | `fix/` 自举交付脚本与文档（本文件、WORKFLOW.md、SELFHOST.md、00~99 脚本） | `fix/**` | 本地交付 | — | 保留 |
+
+> 判定口径：**上游已完整实现且覆盖更全** → 建议弃用本地版；**上游实现不同或只解决一半** → 逐项对比后由用户拍板；**fork 专有**（包名/签名/自举）→ 永久保留。
+
+## 四、约定
+
+- 本地改动一笔一提交，统一 `fork:` 前缀（`fork: build config`、`fork: runtime pin`、`fork: remove updater`、`fork: selfhost`），便于 cherry-pick 与逐项对比。
+- `git config rerere.enabled true` 已开启：同一冲突解法第二次自动复用。
+- 构建只在 `/root/build/dsh-Go` 副本做（`/sdcard` 是 FUSE，无执行位）；源码仍在 `/sdcard` 的 git 仓库里。
+- 合并后必须重跑：`fix/00-check-env.sh` → debug 构建 → 真机验证；release 前 `fix/99-verify-apk.sh`。
+- `.git` 约 640MB 在 /sdcard 上，避免频繁 `git gc`。
