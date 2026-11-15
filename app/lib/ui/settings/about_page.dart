@@ -21,7 +21,7 @@ import 'settings_widgets.dart';
 /// The installed version as the app shows it: `0.9.6 (10271234)`.
 String installedVersionLabel(WidgetRef ref) {
   // What Android reports as installed, falling back to the compiled-in constant.
-  final app = ref.watch(installedAppProvider).valueOrNull;
+  final app = ref.watch(installedAppProvider).asData?.value;
   final name = app?.versionName ?? AppInfo.version.split('+').first;
   final build = app?.versionCode;
   return build == null ? name : '$name ($build)';
