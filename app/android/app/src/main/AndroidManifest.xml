@@ -38,7 +38,6 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <!-- In-app update: installs the downloaded APK through a PackageInstaller session (update/). -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- libadb-android declares no targetSdk, so the merger implies READ_PHONE_STATE ("读取手机状态");
          nothing here reads it. -->

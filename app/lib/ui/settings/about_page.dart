@@ -10,20 +10,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/l10n.dart';
 import '../../state/app_info.dart';
 import '../../state/star_prompt.dart' show starLinkOpenerProvider;
-import '../../state/update_state.dart';
+import '../../state/installed_app.dart';
 import '../shell/brand_mark.dart';
 import '../shell/page_frame.dart';
 import '../star/star_prompt_dialog.dart' show openStarProject;
 import '../theme/app_icons.dart';
 import '../theme/theme.dart';
-import '../update/update_tiles.dart';
 import 'settings_widgets.dart';
 
 /// The installed version as the app shows it: `0.9.6 (10271234)`.
 String installedVersionLabel(WidgetRef ref) {
-  // What Android reports as installed (the compiled-in constant until it does).
-  final installed = ref.watch(appUpdateProvider.select((s) => s.current));
-  return installed.build == null ? installed.name : '${installed.name} (${installed.build})';
+  // What Android reports as installed, falling back to the compiled-in constant.
+  final app = ref.watch(installedAppProvider).valueOrNull;
+  final name = app?.versionName ?? AppInfo.version.split('+').first;
+  final build = app?.versionCode;
+  return build == null ? name : '$name ($build)';
 }
 
 class AboutPage extends ConsumerWidget {
@@ -44,7 +45,6 @@ class AboutPage extends ConsumerWidget {
               spot: Spots.version,
               value: Text(version, style: AppType.tabular(theme.textTheme.bodyMedium!)),
             ),
-            const AppUpdateTiles(),
             SettingsTile(
               key: const ValueKey('settings-star'),
               spot: Spots.star,

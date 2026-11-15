@@ -40,7 +40,6 @@ import '../share_code/share_code_host.dart';
 import '../tavern/tavern_intake.dart';
 import '../star/star_prompt_host.dart';
 import '../theme/theme.dart';
-import '../update/update_launch_check.dart';
 import '../wallpaper/wallpaper_backdrop.dart';
 import '../web/local_web_screen.dart';
 import 'adaptive/adaptive_layout.dart';
@@ -341,8 +340,6 @@ class _HomeShellState extends ConsumerState<HomeShell> with TickerProviderStateM
                       ChatAlertHost(onReveal: _revealChat),
                       // Background running cut off by the phone: one line under the header (draws nothing here).
                       const BackgroundNetHost(),
-                      // Daily update check + install resume (draws nothing).
-                      const UpdateLaunchCheck(),
                       // The voice model chosen during setup: download, resume, ready / failed notices (draws nothing).
                       const VoiceModelHost(),
                       // 公测版: once in a while, an invitation to star the project (draws nothing).
