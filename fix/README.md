@@ -124,10 +124,21 @@ cd /sdcard/DshWorkSpace/AndroidProjects/dsh-Go
 bash fix/00-check-env.sh      # 体检：缺什么一目了然
 bash fix/01-setup-flutter-arm64.sh   # 装 Flutter + arm64 Dart + 打补丁（幂等）
 bash fix/02-setup-mirrors.sh         # 写 init.gradle、改 Flutter 插件与 pub 缓存仓库
-bash fix/03-patch-ndk-abi.sh         # 给 NDK 27.2 / 28.2 打 ABI 感知包装
+bash fix/03-patch-ndk-abi.sh         # 给 NDK 27.2 / 28.2 打 ABI 感知包装（已修正符号链接穿透，见下）
+bash fix/06-setup-box64.sh           # box64（release 的 AOT 编译器靠它模拟 x86_64）
+bash fix/07-install-aot-wrapper.sh   # 把 gen_snapshot 接到 box64
+bash fix/10-adapt-host-tools.sh      # x86libs / qemu10 / aapt2 override / cmake 包装 / sqlite3 离线补丁 / 环境变量
+bash runtime/build-runtime.sh arm64-v8a   # 自建运行时资产（必须在 /root 副本里跑）
 bash fix/04-build-apk-arm64.sh       # 同步到 /root、构建、复制 APK 到 /sdcard
 bash fix/99-verify-apk.sh            # 校验签名/包名/架构
 ```
+
+> **fix/10 是 2026-11-15 新增的**：把「arm64 手机上跑 x86_64 构建工具」需要的手工适配固化成幂等脚本。
+> 缺了它会出现三类失败：Gradle 报 aapt2 daemon 启不来、`:jni` 报 CMake 3.22.1 找不到、
+> sqlite3 native assets 去 GitHub 下载超时。细节见脚本头部注释。
+>
+> **fix/03 已于 2026-11-15 修正**：NDK 28.2 的 `clang`/`clang++`/`llvm-strip`/`llvm-readelf` 都是符号链接，
+> 旧版脚本 `cat >` 会穿透链接写坏真二进制（症状：CMake 报「The C compiler is a C++ compiler」）。
 
 产物：`/sdcard/Download/DSH-Go/dsh-go-arm64-debug.apk`
 
