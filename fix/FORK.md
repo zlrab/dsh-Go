@@ -40,7 +40,7 @@ git checkout main-phone && git merge main
 |---|---|---|---|---|---|
 | 1 | `applicationId=com.lizow.dsh`、lint/资源压缩/R8/符号抽取关闭、debug 变体后缀 | `app/android/app/build.gradle.kts`、`gradle.properties` | fork 专有 | 否 | 保留 |
 | 2 | 应用名资源化：`@string/app_name` = DSH Go，debug 覆盖为「DSH Go 调试」 | `AndroidManifest.xml`、`res/values/strings.xml`、`src/debug/res/values/strings.xml` | fork 专有 | 否 | 保留 |
-| 3 | proot pin：`5.1.107.98 → 5.1.107.102`（HANDOVER 5.2① 的手工修补，**未更新 sha256 pin**） | `runtime/build-runtime.sh` | 临时修补 | **是**：上游 `bf22ae01`（2026-11-15）改版本号 + 3 个 sha256 pin，比我们完整 | **待评估**：等 main 同步后对比，用户决定是否丢弃本地版 |
+| 3 | proot pin：`5.1.107.98 → 5.1.107.102`（HANDOVER 5.2① 的手工修补，**未更新 sha256 pin**） | `runtime/build-runtime.sh` | 临时修补 | **是**：上游 `bf22ae01`（2026-11-15）改版本号 + 3 个 sha256 pin，比我们完整 | **保留提交**（用户 2026-11-15 决定）：合并后本地版相对 main 的 diff = 0 行，无副作用；上游已完整覆盖 |
 | 4 | 移除应用内更新链路（包名/签名已改，原更新链路装不上） | `app/lib/update/**`、`state/update_state.dart`、`ui/update/**`、`android/**/update/**`、l10n、测试、tooling、docs | fork 专有 | 上游仍在维护 | 待实施（见评估：净删约 13k 行，需先抽共享设施） |
 | 5 | `fix/` 自举交付脚本与文档（本文件、WORKFLOW.md、SELFHOST.md、00~99 脚本） | `fix/**` | 本地交付 | — | 保留 |
 
@@ -53,3 +53,9 @@ git checkout main-phone && git merge main
 - 构建只在 `/root/build/dsh-Go` 副本做（`/sdcard` 是 FUSE，无执行位）；源码仍在 `/sdcard` 的 git 仓库里。
 - 合并后必须重跑：`fix/00-check-env.sh` → debug 构建 → 真机验证；release 前 `fix/99-verify-apk.sh`。
 - `.git` 约 640MB 在 /sdcard 上，避免频繁 `git gc`。
+
+## 五、同步记录
+
+| 日期 | 上游提交数 | 冲突 | 结果 |
+|---|---|---|---|
+| 2026-11-15 | 157（`719fed04 → 31f6d874`） | **0** | 版本随上游升到 **1.1.0**；`onnxruntime` 1.23.2→1.27.0（修 Snapdragon 8 Elite + Android 16 崩溃）；debug 构建 8m57s、装机首帧 3.85s、无崩溃无 ANR、资源版本自动刷新（11151608→11151751） |
