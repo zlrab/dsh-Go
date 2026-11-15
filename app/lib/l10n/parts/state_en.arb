@@ -375,5 +375,5 @@
   "stateUiWeb": "Web",
   "statePluginRegistryProgressUnknown": "Downloading from {registry} (registry {attempt}/null)",
   "stateProviderTokenCountInvalid": "Enter a number, like 128K",
-  "appSlogan": "One loop at a time, it renews itself."
+  "appSlogan": "Turns itself. God mode."
 }
