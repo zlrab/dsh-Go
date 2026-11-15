@@ -45,7 +45,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "io.github.ccch1mneyyy.dsh_app"
+        applicationId = "com.lizow.dsh"
         // java.nio.file (symlinks while unpacking the rootfs) needs API 26.
         minSdk = 26
         // Target 28 like Termux, so the API 29+ exec restriction on app-private
@@ -96,6 +96,10 @@ android {
     lint {
         // targetSdk 28 is deliberate (see docs/architecture.md); not a Play build.
         disable += "ExpiredTargetSdkVersion"
+        // 本地构建：这条链路要跑 78 个任务、与产物无关，直接关掉
+        checkReleaseBuilds = false
+        abortOnError = false
+        checkDependencies = false
     }
 
     androidResources {
@@ -123,6 +127,10 @@ android {
             // tooling/dev-run.sh installs debug over the release build on a phone, data
             // kept: Android only allows that with the same key.
             if (hasWholeReleaseKey) signingConfig = signingConfigs.getByName("release")
+            // 本地迭代策略（fix/README 11.1）：debug 是独立包名，安装/卸载都不会动到 release，
+            // 也不会因为 versionCode 递增而互相顶掉；代价是数据目录独立（首次启动要重新解压运行时）。
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
         release {
             // Use the release key when configured; local builds without key.properties fall back to debug.
@@ -130,6 +138,13 @@ android {
             // Ours on top of Flutter's: phone control's privileged process and
             // its TLS libraries are reached by class name (see the file).
             proguardFiles("proguard-rules.pro")
+
+            // 本地构建取舍（fix/README 第 10 节）：
+            // R8 要吃掉 3~4GB 内存、5 分钟，个人使用不需要压缩/混淆；
+            // native 调试符号是给 Play 控制台用的，抽符号还会走到 qemu 包装的 llvm-objcopy。
+            isMinifyEnabled = false
+            isShrinkResources = false
+            ndk { debugSymbolLevel = "none" }
         }
     }
 }
