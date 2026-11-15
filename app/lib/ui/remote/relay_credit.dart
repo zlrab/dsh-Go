@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
 import '../../state/app_info.dart';
-import '../../state/star_prompt.dart' show starLinkOpenerProvider;
+import '../../state/hosts_state.dart' show urlOpenerProvider;
 import '../settings/settings_widgets.dart';
 import '../theme/app_icons.dart';
 
@@ -61,7 +61,7 @@ class _RelayCreditState extends ConsumerState<RelayCredit> {
     final url = Uri.parse(AppInfo.remoteProjectUrl);
     var opened = false;
     try {
-      opened = await ref.read(starLinkOpenerProvider)(url);
+      opened = await ref.read(urlOpenerProvider)(url);
     } catch (_) {
       // No browser: handled below.
     }

@@ -112,7 +112,8 @@ class UsageStatsController extends Notifier<UsageStatsState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (!ref.mounted) return;
-      final enabled = prefs.getBool(enabledKey) ?? true;
+      // fork：默认不上报（官方统计服务与我们无关）。需要时在 设置 › 隐私 里手动打开。
+      final enabled = prefs.getBool(enabledKey) ?? false;
       DateTime? time(String key) => switch (prefs.getInt(key)) {
         final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
         null => null,

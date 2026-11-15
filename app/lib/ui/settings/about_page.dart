@@ -9,11 +9,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
 import '../../state/app_info.dart';
-import '../../state/star_prompt.dart' show starLinkOpenerProvider;
+import '../../state/hosts_state.dart' show urlOpenerProvider;
 import '../../state/installed_app.dart';
 import '../shell/brand_mark.dart';
 import '../shell/page_frame.dart';
-import '../star/star_prompt_dialog.dart' show openStarProject;
 import '../theme/app_icons.dart';
 import '../theme/theme.dart';
 import 'settings_widgets.dart';
@@ -44,13 +43,6 @@ class AboutPage extends ConsumerWidget {
             SettingsTile(
               spot: Spots.version,
               value: Text(version, style: AppType.tabular(theme.textTheme.bodyMedium!)),
-            ),
-            SettingsTile(
-              key: const ValueKey('settings-star'),
-              spot: Spots.star,
-              onTap: () => unawaited(
-                openStarProject(ProviderScope.containerOf(context, listen: false), ScaffoldMessenger.maybeOf(context)),
-              ),
             ),
             SettingsTile(
               spot: Spots.licenses,
@@ -127,7 +119,7 @@ class AboutPage extends ConsumerWidget {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.maybeOf(context);
     try {
-      if (await ref.read(starLinkOpenerProvider)(url)) return;
+      if (await ref.read(urlOpenerProvider)(url)) return;
     } catch (_) {
       // As with the project's link, fall back to copying when no browser opens.
     }

@@ -20,7 +20,6 @@ import '../bots/bots_page.dart';
 import '../community/community_page.dart';
 import '../cordis/cordis_page.dart';
 import '../files/files_page.dart';
-import '../forum/forum_home_page.dart';
 import '../phone/phone_control_screen.dart';
 import '../plugins/plugin_detail_sheet.dart';
 import '../plugins/plugins_screen.dart';
@@ -147,9 +146,8 @@ class FeatureSection {
 
 String _session(String? id) => id ?? '';
 
-/// 社区, with the forum card at its top opening the forum's home.
-Widget communityPage() =>
-    Builder(builder: (context) => CommunityPage(onOpenForum: () => Navigator.of(context).push(ForumHomePage.route())));
+/// 社区（论坛已在本 fork 移除，页面顶部改为项目卡片）。
+Widget communityPage() => const CommunityPage();
 
 /// Back to the chat, where the composer does the rest (`@`, the mic).
 void _backToChat(BuildContext context, WidgetRef ref, String? _) =>
@@ -321,13 +319,6 @@ final featureSections = <FeatureSection>[
     ),
   ]),
   FeatureSection.localized((l10n) => l10n.catalogCommunitySharingSection, [
-    FeatureItem.localized(
-      id: 'forum',
-      title: (l10n) => l10n.catalogForum,
-      summary: (l10n) => l10n.catalogForumSummary,
-      icon: AppIcons.forum,
-      native: (_) => const ForumHomePage(),
-    ),
     FeatureItem.localized(
       id: 'community',
       title: (l10n) => l10n.catalogCommunity,
