@@ -1,4 +1,4 @@
-// About DSH Go: app information, the original author and personal profiles,
+// About DSH Loop: app information, the original author and personal profiles,
 // then the brand mark, slogan and unofficial-app disclaimer.
 
 import 'dart:async';

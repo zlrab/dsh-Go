@@ -61,9 +61,9 @@ Shows your DeepSeek account or API key and balance; tap it to open your account.
 - **Help**: takes "what can this app do" to a new chat, where the AI answers from this guide. Not shown in Web mode.
 - **Community**: chat groups and the forum.
 - **Diagnostics**: inspect the environment, export a bundle, or enable **Automatic failure analysis** (off by default); see [FAQ](11-faq.md).
-- **About DSH Go**:
+- **About DSH Loop**:
   - **Version**: the app version, such as 0.9.2 (10251234), with the build number in parentheses.
-  - **Star DSH Go on GitHub**: opens the project page, where you can star it or share it with friends.
+  - **Star DSH Loop on GitHub**: opens the project page, where you can star it or share it with friends.
   - **Open-source licenses**.
 
 ## Permissions

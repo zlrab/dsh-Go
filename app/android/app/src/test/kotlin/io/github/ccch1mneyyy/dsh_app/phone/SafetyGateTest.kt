@@ -43,12 +43,12 @@ class SafetyGateTest {
             }
             assertEquals("system-page", refused(verdict(PhoneUnlocks(secretFields = true), "com.android.settings")))
 
-            // DSH Go itself: read, open, write, and its screens come back whole.
+            // DSH Loop itself: read, open, write, and its screens come back whole.
             val own = gate(PhoneUnlocks(ownApp = true))
             assertNull(refused(own.checkWrite(WriteKind.TAP, target(), SafetyRules.OWN_PACKAGE, null)))
             assertNull(own.checkRead(SafetyRules.OWN_PACKAGE, null))
             assertNull(own.checkOpen(SafetyRules.OWN_PACKAGE, null))
-            val screen = ScreenSnapshot("s1", "对话列表", "DSH Go", SafetyRules.OWN_PACKAGE)
+            val screen = ScreenSnapshot("s1", "对话列表", "DSH Loop", SafetyRules.OWN_PACKAGE)
             assertSame(screen, own.filterScreen(screen))
             assertEquals("system-page", refused(own.checkWrite(WriteKind.TAP, target(), "com.android.settings", null)))
 
