@@ -59,3 +59,17 @@ git checkout main-phone && git merge main
 | 日期 | 上游提交数 | 冲突 | 结果 |
 |---|---|---|---|
 | 2026-11-15 | 157（`719fed04 → 31f6d874`） | **0** | 版本随上游升到 **1.1.0**；`onnxruntime` 1.23.2→1.27.0（修 Snapdragon 8 Elite + Android 16 崩溃）；debug 构建 8m57s、装机首帧 3.85s、无崩溃无 ANR、资源版本自动刷新（11151608→11151751） |
+
+### 移除更新链路时**故意保留**的文件（零冲突策略）
+
+上游会持续改这些文件，我们不编辑它们，冲突面才最小：
+
+| 文件 | 为什么留 |
+|---|---|
+| `update/update_http.dart` | workshop、community 的 HTTP 客户端 |
+| `update/version.dart`（AppVersion） | market 的 `minApp` 门控、插件版本比较 |
+| `update/update_config.dart` | `updateRepo`（社区/分享的 GitHub 链接）、`DownloadUrl`（workshop） |
+| `update/downloader.dart` | workshop 复用 `CancelToken`/`DownloadProgress` |
+| `update/installer.dart` | workshop 查 `freeBytes`；`dsh/update` 通道仍提供 `info` |
+| `app/lib/l10n/parts/*update*.arb` | 上游 157 提交里 0 次改动；保留未使用文案，避免动 l10n 与指南校验 |
+| `tooling/{apk_delta,release_assets}.py`、`services/share-worker/scripts/*` | 服务端发版流水线，与 App 无关；内部测试互相引用，删了只会制造冲突 |
