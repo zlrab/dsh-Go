@@ -163,6 +163,20 @@ done
 [ "$found" = 0 ] && note "（没找到 sqlite3 的 pub 缓存：先跑一次 flutter pub get）"
 mkdir -p /opt/prebuilt
 
+
+# ── 6.5 adb：SDK 里那份是 x86_64，改用系统 arm64 的 ─────────────────────────
+log "6.5 adb"
+PT="$SDK/platform-tools"
+if [ -f "$PT/adb" ] && head -c4 "$PT/adb" 2>/dev/null | grep -q 'ELF'; then
+  [ -f "$PT/adb.x86_64" ] || mv "$PT/adb" "$PT/adb.x86_64"
+  note "SDK 的 adb 是 x86_64，已改名为 adb.x86_64（PATH 会落到系统的 arm64 adb）"
+fi
+if command -v adb >/dev/null 2>&1 && adb version >/dev/null 2>&1; then
+  ok "adb: $(adb version | head -1)"
+else
+  note "系统没有可用的 adb：apt-get install -y adb（arm64 原生）"
+fi
+
 # ── 6. 环境变量 ───────────────────────────────────────────────────────────────
 log "6/6 环境变量（/etc/profile.d/dsh-toolchain.sh）"
 cat > /etc/profile.d/dsh-toolchain.sh <<'EOF'

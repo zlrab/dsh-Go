@@ -146,32 +146,52 @@ def _circle(cx, cy, r):
             f'C{cx + r:.3f} {cy + k:.3f} {cx + k:.3f} {cy + r:.3f} {cx:.3f} {cy + r:.3f}'
             f'C{cx - k:.3f} {cy + r:.3f} {cx - r:.3f} {cy + k:.3f} {cx - r:.3f} {cy:.3f}Z')
 
+def _poly_area(pts):
+    a = 0.0
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:] + pts[:1]):
+        a += x1 * y2 - x2 * y1
+    return a / 2
+
+def _norm(pts):
+    """统一绕向（屏幕坐标下取正向）：否则重叠块会被非零填充规则挖空。"""
+    return pts if _poly_area(pts) > 0 else list(reversed(pts))
+
+def _emit(pts):
+    """折线 → 只含 M / 退化 C / Z 的路径串（brand mark 生成器只认这三种）。"""
+    (x0, y0), rest = pts[0], pts[1:]
+    out = [f'M{x0:.3f} {y0:.3f}']
+    for x, y in rest:
+        out.append(f'C{x:.3f} {y:.3f} {x:.3f} {y:.3f} {x:.3f} {y:.3f}')
+    return ' '.join(out) + ' Z'
+
+def _circle_pts(cx, cy, r, n=48):
+    return _norm([(cx + r * math.cos(2 * math.pi * i / n), cy + r * math.sin(2 * math.pi * i / n)) for i in range(n)])
+
+def _arc_pts(cx, cy, r, a0, a1, n=64):
+    return [(cx + r * math.cos(a0 + (a1 - a0) * i / n), cy + r * math.sin(a0 + (a1 - a0) * i / n)) for i in range(n + 1)]
+
 def filled_ring_paths():
-    """3/4 环 = 环段（外弧→内弧）+ 两个端点圆（模拟 round cap）。"""
+    """3/4 环（环段多边形）+ 两个端点圆。"""
     a = math.radians(GAP_DEG)
     ro, ri = R + STROKE / 2, R - STROKE / 2
-    # 开口在右侧：从 -GAP 逆时针绕到 +GAP（屏幕坐标里 a 为向下为正）
-    a0, a1 = -a, -a - (2 * math.pi - 2 * a)     # 顺时针画长弧（与前景同向）
-    outer = _arc_cubics(CX, CY, ro, a0, a1)
-    inner = _arc_cubics(CX, CY, ri, a1, a0)
-    d = (f'M{CX + ro * math.cos(a0):.3f} {CY + ro * math.sin(a0):.3f} ' + ' '.join(outer)
-         + (lambda x, y: f' C{x:.3f} {y:.3f} {x:.3f} {y:.3f} {x:.3f} {y:.3f}')(
-             CX + ri * math.cos(a1), CY + ri * math.sin(a1)) + ' ' + ' '.join(inner) + ' Z')
-    caps = [_circle(CX + R * math.cos(a0), CY + R * math.sin(a0), STROKE / 2),
-            _circle(CX + R * math.cos(a1), CY + R * math.sin(a1), STROKE / 2)]
-    return [d] + caps
+    a0 = -a                      # 缺口上端
+    a1 = -a - (2 * math.pi - 2 * a)  # 顺时针绕长弧到缺口下端
+    outer = _arc_pts(CX, CY, ro, a0, a1)
+    inner = _arc_pts(CX, CY, ri, a1, a0)
+    ring = _norm(outer + inner)
+    caps = [_circle_pts(CX + R * math.cos(t), CY + R * math.sin(t), STROKE / 2) for t in (a0, a1)]
+    return [ring] + caps
 
 def filled_chevron_paths():
-    """提示符 = 两条线段（矩形）+ 三个圆角点。"""
+    """提示符 = 两条粗线段（矩形）+ 三个圆角点。"""
     (x0, y0), (x1, y1), (x2, y2) = CHEV
     h = CHEV_STROKE / 2
     def bar(ax, ay, bx, by):
         dx, dy = bx - ax, by - ay
         L = math.hypot(dx, dy); ux, uy = dx / L, dy / L; nx, ny = -uy, ux
-        pts = [(ax + nx * h, ay + ny * h), (bx + nx * h, by + ny * h),
-               (bx - nx * h, by - ny * h), (ax - nx * h, ay - ny * h)]
-        return 'M' + ' L'.join(f'{x:.3f} {y:.3f}' for x, y in pts) + ' Z'
-    circles = [_circle(x0, y0, h), _circle(x1, y1, h), _circle(x2, y2, h)]
+        return _norm([(ax + nx * h, ay + ny * h), (bx + nx * h, by + ny * h),
+                      (bx - nx * h, by - ny * h), (ax - nx * h, ay - ny * h)])
+    circles = [_circle_pts(x0, y0, h), _circle_pts(x1, y1, h), _circle_pts(x2, y2, h)]
     return [bar(x0, y0, x1, y1), bar(x1, y1, x2, y2)] + circles
 
 # ── 四套配色 ────────────────────────────────────────────────────────────────
@@ -219,11 +239,11 @@ def _flat_grad(gid: str, color: str) -> str:
 def brand_svg(ring: str, chev: str, bg: str | None, view: str, tile: bool = False) -> str:
     # 每块单独一个 <path>：拼进同一个 d 会按填充规则相互抵消，出现缺口
     ring_els = ''.join(
-        f'<path id="body{"" if i == 0 else f":{i}"}" fill="url(#tail)" d="{_c_only(d)}"/>'
-        for i, d in enumerate(filled_ring_paths()))
+        f'<path id="body{"" if i == 0 else f":{i}"}" fill="url(#tail)" d="{_emit(pts)}"/>'
+        for i, pts in enumerate(filled_ring_paths()))
     chev_els = ''.join(
-        f'<path id="bubble-layer{"" if i == 0 else f":{i}"}" fill="url(#bubble)" d="{_c_only(d)}"/>'
-        for i, d in enumerate(filled_chevron_paths()))
+        f'<path id="bubble-layer{"" if i == 0 else f":{i}"}" fill="url(#bubble)" d="{_emit(pts)}"/>'
+        for i, pts in enumerate(filled_chevron_paths()))
     defs = ''.join([_flat_grad('tail', ring), _flat_grad('fin', ring),
                     _flat_grad('belly', ring), _flat_grad('bubble', chev)])
     if tile:
