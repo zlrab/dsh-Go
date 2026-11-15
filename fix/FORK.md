@@ -84,3 +84,25 @@ cd app && python3 tool/l10n_merge.py     # 生成 app_{zh,en}.arb 并跑 flutter
 
 `lib/l10n/app_*.arb` 与 `lib/l10n/gen/` 都是生成物（`l10n.yaml` 顶部写明不要手改）。
 漏跑合并的典型症状：改了 parts 里的 `appSlogan`，装机后界面仍是旧文案。
+
+## 七、git 历史规则（硬性，2026-11-15 用户明确要求）
+
+**严禁改写 git 历史。** 仅 2026-11-15 一次用户明确授权的例外（删掉「本地安装包更新」加功能 + revert 两笔），此后不再有例外。
+
+| 禁止 | 说明 |
+|---|---|
+| `git rebase`（含 `-i`、`--onto`） | 会重写提交 |
+| `git commit --amend` | 会改写最后一笔（已推送的绝对禁止） |
+| `git reset --hard` 丢弃提交 | 让提交从分支上消失 |
+| `git filter-branch` / `filter-repo` | 批量重写 |
+| push 时 `--force` / `--force-with-lease` | 覆盖远端历史 |
+| `git reflog expire` + `gc --prune=now` | 让被丢弃的提交不可恢复 |
+
+**要撤销已提交的内容，一律用追加提交：**
+
+```bash
+git revert <sha>          # 反向提交，历史线性前进
+git revert --no-edit <sha>
+```
+
+工作区里的未提交改动可以随便改、随便丢（`git checkout -- <file>`），那不属于"改写历史"。
