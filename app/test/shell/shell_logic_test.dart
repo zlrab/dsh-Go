@@ -6,7 +6,6 @@ import 'package:dsh_app/state/notify_state.dart';
 import 'package:dsh_app/state/onboarding_state.dart';
 import 'package:dsh_app/state/sessions_state.dart';
 import 'package:dsh_app/state/settings_state.dart';
-import 'package:dsh_app/state/update_state.dart';
 import 'package:dsh_app/ui/chat/render/markdown_body.dart';
 import 'package:dsh_app/ui/common/app_sheet.dart';
 import 'package:dsh_app/ui/common/progress_halo.dart';
@@ -23,8 +22,6 @@ import 'package:dsh_app/ui/settings/settings_screen.dart';
 import 'package:dsh_app/ui/shell/home_shell.dart';
 import 'package:dsh_app/ui/shell/root_gate.dart';
 import 'package:dsh_app/ui/shell/sessions_drawer.dart';
-import 'package:dsh_app/ui/update/update_sheet.dart';
-import 'package:dsh_app/update/release.dart';
 import 'package:dsh_app/update/version.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -288,40 +285,7 @@ void main() {
     expect(find.text('全程在本机完成'), findsOneWidget);
   });
 
-  testWidgets('update notes begin 16 inside the card', (tester) async {
-    usePhoneSurface(tester);
-    final release = ReleaseInfo(
-      version: AppVersion.tryParse('1.2.0+2')!,
-      tag: 'v1.2.0',
-      notes: '修复了连接恢复',
-      apks: {ApkFlavor.arm64: ReleaseAsset(name: 'app.apk', url: Uri.parse('https://example.com/app.apk'), size: 1234)},
-    );
-    await tester.pumpWidget(
-      goldenApp(
-        home: const Scaffold(body: SafeArea(child: UpdateSheet())),
-        brightness: Brightness.light,
-        overrides: [
-          appUpdateProvider.overrideWith(
-            () => _FixedUpdate(
-              AppUpdateState(
-                loaded: true,
-                current: AppVersion.tryParse('1.0.0+1')!,
-                flavor: ApkFlavor.arm64,
-                check: UpdateCheckPhase.available,
-                latest: release,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-    await tester.pump();
-    final notes = tester.getRect(find.byType(MarkdownBody));
-    final card = tester.getRect(find.byType(SheetGroup));
-    expect(notes.left - card.left, closeTo(16, .5));
-    expect(card.right - notes.right, closeTo(16, .5));
-    expect(tester.takeException(), isNull);
-  });
+
 
   group('root gate', () {
     Future<void> pumpGate(WidgetTester tester, LocalRuntimeState runtime, AppSettings settings) async {
@@ -429,11 +393,3 @@ class _CountingNotify extends NotifyChannel {
   }
 }
 
-class _FixedUpdate extends AppUpdateController {
-  _FixedUpdate(this.initial);
-
-  final AppUpdateState initial;
-
-  @override
-  AppUpdateState build() => initial;
-}

@@ -2,7 +2,8 @@ import 'dart:ui' show SemanticsAction;
 
 import 'package:dsh_app/l10n/l10n.dart';
 import 'package:dsh_app/state/star_prompt.dart';
-import 'package:dsh_app/state/update_state.dart';
+import 'package:dsh_app/state/installed_app.dart';
+import 'package:dsh_app/update/installer.dart';
 import 'package:dsh_app/ui/settings/about_page.dart';
 import 'package:dsh_app/ui/settings/settings_widgets.dart';
 import 'package:dsh_app/ui/theme/theme.dart';
@@ -13,11 +14,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/test_fonts.dart';
-
-class _FixedUpdate extends AppUpdateController {
-  @override
-  AppUpdateState build() => const AppUpdateState(current: AppVersion(1, 0, 2, build: 42));
-}
 
 class _StarStore implements StarPromptStore {
   final writes = <StarPromptRecord>[];
@@ -64,7 +60,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          appUpdateProvider.overrideWith(_FixedUpdate.new),
+          installedAppProvider.overrideWith(
+            (ref) async => const InstalledApp(versionName: '1.0.2', versionCode: 42),
+          ),
           starLinkOpenerProvider.overrideWithValue((uri) => opener(uri)),
           starPromptStoreProvider.overrideWithValue(store),
           starPromptGateProvider.overrideWithValue(false),

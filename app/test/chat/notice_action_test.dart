@@ -5,7 +5,6 @@ import 'package:dsh_app/state/chat_state.dart';
 import 'package:dsh_app/state/hosts_state.dart';
 import 'package:dsh_app/state/models_state.dart';
 import 'package:dsh_app/state/sessions_state.dart';
-import 'package:dsh_app/state/update_state.dart';
 import 'package:dsh_app/ui/chat/chat_screen.dart';
 import 'package:dsh_app/ui/chat/widgets/notice_row.dart';
 import 'package:dsh_app/ui/chat/widgets/stream_row.dart';
@@ -305,16 +304,7 @@ void main() {
       expect(harness.controllers['s2']?.models ?? const [], isEmpty);
     });
 
-    testWidgets('a model that needs a newer engine on this phone offers 检查更新', (tester) async {
-      final update = _UpToDate();
-      await refused(tester, 'CLIENT_UPGRADE_REQUIRED', upgrade, extra: [appUpdateProvider.overrideWith(() => update)]);
-      expect(find.text('这个模型需要新版引擎'), findsOneWidget);
-      expect(find.widgetWithText(TextButton, '换模型'), findsNothing);
-      await tester.tap(find.widgetWithText(TextButton, '检查更新'));
-      await pumpFrames(tester, 3);
-      expect(update.checks, 1);
-      expect(find.text('已是最新版本'), findsOneWidget);
-    });
+);
 
     testWidgets('on a remote host the engine is not the app’s: 换模型', (tester) async {
       await refused(
@@ -386,22 +376,6 @@ void main() {
 }
 
 /// No newer release: a check answers 已是最新 without the network.
-class _UpToDate extends AppUpdateController {
-  var checks = 0;
-
-  @override
-  AppUpdateState build() => const AppUpdateState(loaded: true, current: AppVersion(0, 9, 7));
-
-  @override
-  Future<void> get ready async {}
-
-  @override
-  Future<UpdateCheckPhase> check() async {
-    checks++;
-    return UpdateCheckPhase.upToDate;
-  }
-}
-
 /// A DSH Remote host is the active one.
 class _RelayHost extends ActiveHostController {
   @override
