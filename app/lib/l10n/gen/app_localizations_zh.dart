@@ -15744,7 +15744,8 @@ class L10nZh extends L10n {
   String get remotePairNeedsDeepSeek => '先登录 DeepSeek 账号';
 
   @override
-  String get remotePairNeedsDeepSeekBody => '扫码配对要先在 DSH Loop 里登录 DeepSeek 账号。配对时只附带账号 ID 用来标记这台手机，不传密码、Cookie 或 Token。';
+  String get remotePairNeedsDeepSeekBody =>
+      '扫码配对要先在 DSH Loop 里登录 DeepSeek 账号。配对时只附带账号 ID 用来标记这台手机，不传密码、Cookie 或 Token。';
 
   @override
   String get remotePairScanHint => '对准电脑上 Remote 插件显示的配对二维码';
@@ -19078,7 +19079,7 @@ class L10nZh extends L10n {
   String get stateProviderTokenCountInvalid => '填写数字，如 128K';
 
   @override
-  String get appSlogan => '随时随刻，想go就Go！';
+  String get appSlogan => '自转自升，上帝模式';
 
   @override
   String get tavernTitle => '酒馆';
@@ -23047,6 +23048,9 @@ class L10nZh extends L10n {
   String updateDownloadingPercent(int percent) {
     return '正在下载 $percent%';
   }
+
+  @override
+  String get aboutSelfhostHint => '自举更新：新构建的包放在 /sdcard/Download/DSH-Go/，用文件管理器打开即可覆盖安装（数据保留）。';
 
   @override
   String get usageStatsTitle => '发送匿名使用统计';

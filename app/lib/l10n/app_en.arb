@@ -7006,6 +7006,7 @@
   "updateNoAbiPackage": "No {abi} package for this release yet. Check the release page.",
   "updateNoPackage": "No package for this release yet. Check the release page.",
   "updateDownloadingPercent": "Downloading {percent}%",
+  "aboutSelfhostHint": "Self-hosted updates: new builds land in /sdcard/Download/DSH-Go/ — open one with a file manager to install over this app (data is kept).",
   "usageStatsTitle": "Send anonymous usage stats",
   "usageStatsSection": "Improve DSH Loop",
   "usageStatsFooter": "This switch controls dsh-go’s own statistics: feature counts (tavern messages, companion room visits and voice calls included), the token counts model replies report, versions, phone maker and model, and system version. It includes no chats, character cards, files or accounts, and does not control Google ML Kit SDK statistics.",

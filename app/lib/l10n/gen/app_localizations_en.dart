@@ -20131,7 +20131,7 @@ class L10nEn extends L10n {
   String get stateProviderTokenCountInvalid => 'Enter a number, like 128K';
 
   @override
-  String get appSlogan => 'Anytime, anywhere. Just Go!';
+  String get appSlogan => 'Turns itself. God mode.';
 
   @override
   String get tavernTitle => 'Tavern';
@@ -24266,6 +24266,10 @@ class L10nEn extends L10n {
   String updateDownloadingPercent(int percent) {
     return 'Downloading $percent%';
   }
+
+  @override
+  String get aboutSelfhostHint =>
+      'Self-hosted updates: new builds land in /sdcard/Download/DSH-Go/ — open one with a file manager to install over this app (data is kept).';
 
   @override
   String get usageStatsTitle => 'Send anonymous usage stats';

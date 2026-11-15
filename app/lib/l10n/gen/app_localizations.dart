@@ -34931,7 +34931,7 @@ abstract class L10n {
   /// No description provided for @appSlogan.
   ///
   /// In zh, this message translates to:
-  /// **'随时随刻，想go就Go！'**
+  /// **'自转自升，上帝模式'**
   String get appSlogan;
 
   /// No description provided for @tavernTitle.
@@ -42127,6 +42127,12 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'正在下载 {percent}%'**
   String updateDownloadingPercent(int percent);
+
+  /// No description provided for @aboutSelfhostHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'自举更新：新构建的包放在 /sdcard/Download/DSH-Go/，用文件管理器打开即可覆盖安装（数据保留）。'**
+  String get aboutSelfhostHint;
 
   /// No description provided for @usageStatsTitle.
   ///

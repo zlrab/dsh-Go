@@ -82,5 +82,6 @@
   "updateOpenPermissionSettings": "Turn on",
   "updateNoAbiPackage": "No {abi} package for this release yet. Check the release page.",
   "updateNoPackage": "No package for this release yet. Check the release page.",
-  "updateDownloadingPercent": "Downloading {percent}%"
+  "updateDownloadingPercent": "Downloading {percent}%",
+  "aboutSelfhostHint": "Self-hosted updates: new builds land in /sdcard/Download/DSH-Go/ — open one with a file manager to install over this app (data is kept)."
 }

@@ -55,6 +55,14 @@ class AboutPage extends ConsumerWidget {
           ],
         ),
         Padding(
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
+          child: Text(
+            l10n.aboutSelfhostHint,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(color: colors.textTertiary, height: 1.5),
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
           child: Column(
             children: [

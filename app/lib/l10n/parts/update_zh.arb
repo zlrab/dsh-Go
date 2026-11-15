@@ -162,5 +162,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "aboutSelfhostHint": "自举更新：新构建的包放在 /sdcard/Download/DSH-Go/，用文件管理器打开即可覆盖安装（数据保留）。"
 }
