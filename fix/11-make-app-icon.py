@@ -208,6 +208,11 @@ def write(path: pathlib.Path, text: str):
     path.write_text(text)
     print(f'  ✓ {path.relative_to(REPO)}')
 
+# 生成的位图会被 Android 相册索引（/sdcard 下所有图片都会被扫）：放 .nomedia 屏蔽
+for d in (REPO, PREVIEW):
+    d.mkdir(parents=True, exist_ok=True)
+    (d / '.nomedia').touch()
+
 # ── Android 资源 ────────────────────────────────────────────────────────────
 print('Android 矢量资源：')
 for name, (stops, ring, chev, note) in VARIANTS.items():
