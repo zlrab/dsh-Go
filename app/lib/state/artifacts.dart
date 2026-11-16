@@ -166,7 +166,7 @@ bool isArtifactPath(String path) {
 const phoneStorageGuestPath = '/sdcard';
 
 /// The folder the local engine's instructions send output files to.
-const phoneOutputDir = '$phoneStorageGuestPath/Download/DSH-Go';
+const phoneOutputDir = '$phoneStorageGuestPath/Download/DSH-Loop';
 
 /// How an artifact was found.
 enum ArtifactOrigin {
@@ -179,7 +179,7 @@ enum ArtifactOrigin {
   /// Linked from the turn's final reply, and named by its tool calls.
   linked,
 
-  /// Appeared in `/sdcard/Download/DSH-Go` (or the old `DSH`) while the turn ran (local engine).
+  /// Appeared in `/sdcard/Download/DSH-Loop` (or the old `DSH-Go`/`DSH`) while the turn ran (local engine).
   phoneOutput,
 }
 
@@ -247,7 +247,7 @@ class TurnArtifacts {
 class PhoneOutput {
   const PhoneOutput({required this.path, required this.modified, this.bytes});
 
-  /// Guest path (`/sdcard/Download/DSH-Go/…`).
+  /// Guest path (`/sdcard/Download/DSH-Loop/…`).
   final String path;
   final DateTime modified;
   final int? bytes;
@@ -469,7 +469,7 @@ class FilesChannel {
   /// Android path of a local-engine file; null when it is not there.
   Future<String?> resolveGuest(String path) => channel.invokeMethod<String>('resolveGuest', {'path': path});
 
-  /// Files under [phoneOutputDir] and the old `Download/DSH` (empty without phone
+  /// Files under [phoneOutputDir] and the old `Download/DSH-Go`/`DSH` (empty without phone
   /// storage access).
   Future<List<PhoneOutput>> listOutputs({int depth = 3}) async {
     final raw = await channel.invokeListMethod<Object?>('listOutputs', {'depth': depth}) ?? const [];
@@ -489,11 +489,11 @@ class FilesChannel {
   Future<void> open(String hostPath, {required String name, required String mime, bool chooser = false}) =>
       channel.invokeMethod<void>('open', {'path': hostPath, 'name': name, 'mime': mime, 'chooser': chooser});
 
-  /// Copies an Android file into the public Downloads (`Download/DSH-Go`);
-  /// returns where it landed (`Download/DSH-Go/report.pdf`).
+  /// Copies an Android file into the public Downloads (`Download/DSH-Loop`);
+  /// returns where it landed (`Download/DSH-Loop/report.pdf`).
   Future<String> saveToDownloads(String hostPath, {required String name, required String mime}) async =>
       await channel.invokeMethod<String>('saveToDownloads', {'path': hostPath, 'name': name, 'mime': mime}) ??
-      'Download/DSH-Go/$name';
+      'Download/DSH-Loop/$name';
 
   /// Page sizes (PDF points) of a PDF on this phone.
   Future<List<({int width, int height})>> pdfInfo(String hostPath) async {

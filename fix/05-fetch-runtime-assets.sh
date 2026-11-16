@@ -1,5 +1,5 @@
 #!/bin/bash
-# 给构建副本补上 App 运行时资产（rootfs + proot），否则装上去会提示
+# 给仓库补上 App 运行时资产（rootfs + proot），否则装上去会提示
 # 「App 内的运行环境包不完整」。
 #
 # 两种来源，优先用第二种（快，几十秒）：
@@ -9,7 +9,8 @@
 # 用法： bash 05-fetch-runtime-assets.sh [包名]
 set -euo pipefail
 PKG="${1:-io.github.ccch1mneyyy.dsh_app}"
-DST="${DST:-/root/build/dsh-Go/runtime/out/arm64-v8a}"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DST="${DST:-$REPO/runtime/out/arm64-v8a}"
 TMP="${TMP:-/root/official}"
 export HOME=/root
 

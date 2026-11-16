@@ -16,14 +16,14 @@
   品牌（App 内 brand mark，由 tool/make_brand_mark.py 再转成 dart）
     app/assets/brand/glyph-light.svg / glyph-dark.svg / glyph-mono.svg / tile.svg
   预览（不参与构建）
-    /sdcard/Download/DSH-Go/icon-preview/*.png
+    /sdcard/Download/DSH-Loop/icon-preview/*.png
 """
 import math, pathlib, subprocess
 
-REPO = pathlib.Path('/sdcard/DshWorkSpace/AndroidProjects/dsh-Go')
+REPO = pathlib.Path(__file__).resolve().parents[1]
 RES = REPO / 'app/android/app/src/main/res'
 BRAND = REPO / 'app/assets/brand'
-PREVIEW = pathlib.Path('/sdcard/Download/DSH-Go/icon-preview')
+PREVIEW = pathlib.Path('/sdcard/Download/DSH-Loop/icon-preview')
 
 # ── 几何（108 网格，安全区半径 33 居中）──────────────────────────────────────
 CX, CY, R, STROKE = 54.0, 54.0, 23.5, 7.4

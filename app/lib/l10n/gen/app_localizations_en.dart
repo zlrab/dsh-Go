@@ -4397,7 +4397,7 @@ class L10nEn extends L10n {
   String get chatOpenInDefaultApp => 'Open in default app';
 
   @override
-  String get chatDownloadsFolderHint => 'Downloads/DSH-Go folder';
+  String get chatDownloadsFolderHint => 'Downloads/DSH-Loop folder';
 
   @override
   String chatSavedToDownloadsPath(String path) {
@@ -8615,7 +8615,7 @@ class L10nEn extends L10n {
   String get featuresExportSaveDownloads => 'Save to Downloads';
 
   @override
-  String get featuresExportDownloadsHint => 'Save in Downloads/DSH-Go';
+  String get featuresExportDownloadsHint => 'Save in Downloads/DSH-Loop';
 
   @override
   String get featuresExportContents => 'All records and attachments from this chat and its subagents';
@@ -10632,7 +10632,7 @@ class L10nEn extends L10n {
   String get phoneDiagnosticsSave => 'Save to Downloads';
 
   @override
-  String get phoneDiagnosticsSaveHint => 'Save in Downloads/DSH-Go';
+  String get phoneDiagnosticsSaveHint => 'Save in Downloads/DSH-Loop';
 
   @override
   String get phoneDiagnosticsNote =>
@@ -12238,7 +12238,7 @@ class L10nEn extends L10n {
   String get phoneSelfCheckSaving => 'Saving…';
 
   @override
-  String get phoneSelfCheckSaved => 'Report saved to Downloads/DSH-Go.';
+  String get phoneSelfCheckSaved => 'Report saved to Downloads/DSH-Loop.';
 
   @override
   String get phoneSelfCheckSaveFailed => 'Could not save the report.';
@@ -24226,7 +24226,7 @@ class L10nEn extends L10n {
 
   @override
   String get updateExportApkMessage =>
-      'Copies the package downloaded and verified now into Downloads/DSH-Go, so you can sign it yourself (MT Manager and the like) and install that.\n\nA package you signed has a different signature from ours: in-app updates then always report a signature mismatch, and every later version has to be signed and installed by hand.\n\nIf the system simply blocks the install (Xiaomi and other vendors), try Shizuku or on-device ADB under Installation route first; that needs no signing.';
+      'Copies the package downloaded and verified now into Downloads/DSH-Loop, so you can sign it yourself (MT Manager and the like) and install that.\n\nA package you signed has a different signature from ours: in-app updates then always report a signature mismatch, and every later version has to be signed and installed by hand.\n\nIf the system simply blocks the install (Xiaomi and other vendors), try Shizuku or on-device ADB under Installation route first; that needs no signing.';
 
   @override
   String updateExportApkDone(String path) {
@@ -24269,7 +24269,7 @@ class L10nEn extends L10n {
 
   @override
   String get aboutSelfhostHint =>
-      'Self-hosted updates: new builds land in /sdcard/Download/DSH-Go/ — open one with a file manager to install over this app (data is kept).';
+      'Self-hosted updates: new builds land in /sdcard/Download/DSH-Loop/ — open one with a file manager to install over this app (data is kept).';
 
   @override
   String get usageStatsTitle => 'Send anonymous usage stats';

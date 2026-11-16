@@ -71,7 +71,7 @@
   "updateSystemInstallerFailed": "Couldn't open the system installer",
   "updateExportApk": "Save the package",
   "updateExportApkTitle": "Save the package?",
-  "updateExportApkMessage": "Copies the package downloaded and verified now into Downloads/DSH-Go, so you can sign it yourself (MT Manager and the like) and install that.\n\nA package you signed has a different signature from ours: in-app updates then always report a signature mismatch, and every later version has to be signed and installed by hand.\n\nIf the system simply blocks the install (Xiaomi and other vendors), try Shizuku or on-device ADB under Installation route first; that needs no signing.",
+  "updateExportApkMessage": "Copies the package downloaded and verified now into Downloads/DSH-Loop, so you can sign it yourself (MT Manager and the like) and install that.\n\nA package you signed has a different signature from ours: in-app updates then always report a signature mismatch, and every later version has to be signed and installed by hand.\n\nIf the system simply blocks the install (Xiaomi and other vendors), try Shizuku or on-device ADB under Installation route first; that needs no signing.",
   "updateExportApkDone": "Saved to Downloads/{path}",
   "updateExportApkFailed": "Couldn't save the package",
   "updateStarProject": "Star it",
@@ -83,5 +83,5 @@
   "updateNoAbiPackage": "No {abi} package for this release yet. Check the release page.",
   "updateNoPackage": "No package for this release yet. Check the release page.",
   "updateDownloadingPercent": "Downloading {percent}%",
-  "aboutSelfhostHint": "Self-hosted updates: new builds land in /sdcard/Download/DSH-Go/ — open one with a file manager to install over this app (data is kept)."
+  "aboutSelfhostHint": "Self-hosted updates: new builds land in /sdcard/Download/DSH-Loop/ — open one with a file manager to install over this app (data is kept)."
 }

@@ -1,5 +1,5 @@
 // Where a share code goes — the clipboard, the Android share sheet, a `.dshgo`
-// file in Download/DSH-Go. A seam: tests record instead.
+// file in Download/DSH-Loop. A seam: tests record instead.
 
 import 'dart:io';
 
@@ -72,7 +72,7 @@ class ShareOut {
     ),
   );
 
-  /// Into `Download/DSH-Go`; returns where it landed.
+  /// Into `Download/DSH-Loop`; returns where it landed.
   Future<String> save(String name, String content) async {
     final dir = await Directory('${(await _cacheRoot()).path}/share_code').create(recursive: true);
     // A dismissed sheet may reopen while the native worker still reads its source.

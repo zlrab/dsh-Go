@@ -1,5 +1,5 @@
 // Where a shared conversation goes — a `.dshgo` file, a self-contained `.html`
-// or Markdown (the Android share sheet, or Download/DSH-Go), plain text, or a
+// or Markdown (the Android share sheet, or Download/DSH-Loop), plain text, or a
 // hosted link (the share host's client, app/lib/share_hosted/). Seams: tests
 // record instead.
 
@@ -94,7 +94,7 @@ class ConversationOut {
   /// The Android share sheet with a link.
   Future<void> shareText(String text) => _share(ShareParams(text: text));
 
-  /// Into `Download/DSH-Go`; returns where it landed.
+  /// Into `Download/DSH-Loop`; returns where it landed.
   Future<String> save(String name, String content, ConversationFormat format) async {
     final dir = await Directory('${(await _cacheRoot()).path}/conversation').create(recursive: true);
     // A dismissed sheet can reopen before the native worker reads its source.

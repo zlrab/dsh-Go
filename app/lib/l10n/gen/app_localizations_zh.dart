@@ -4172,7 +4172,7 @@ class L10nZh extends L10n {
   String get chatOpenInDefaultApp => '用默认应用打开';
 
   @override
-  String get chatDownloadsFolderHint => '下载/DSH-Go 文件夹';
+  String get chatDownloadsFolderHint => '下载/DSH-Loop 文件夹';
 
   @override
   String chatSavedToDownloadsPath(String path) {
@@ -8195,7 +8195,7 @@ class L10nZh extends L10n {
   String get featuresExportSaveDownloads => '存到「下载」';
 
   @override
-  String get featuresExportDownloadsHint => '存进 下载/DSH-Go';
+  String get featuresExportDownloadsHint => '存进 下载/DSH-Loop';
 
   @override
   String get featuresExportContents => '含这个对话和子代理的全部记录与附件';
@@ -10103,7 +10103,7 @@ class L10nZh extends L10n {
   String get phoneDiagnosticsSave => '存到「下载」';
 
   @override
-  String get phoneDiagnosticsSaveHint => '存进 下载/DSH-Go';
+  String get phoneDiagnosticsSaveHint => '存进 下载/DSH-Loop';
 
   @override
   String get phoneDiagnosticsNote => '含版本、设备、日志和最近一次崩溃，不含 Key 和令牌';
@@ -11627,7 +11627,7 @@ class L10nZh extends L10n {
   String get phoneSelfCheckSaving => '保存中…';
 
   @override
-  String get phoneSelfCheckSaved => '报告已存入下载/DSH-Go。';
+  String get phoneSelfCheckSaved => '报告已存入下载/DSH-Loop。';
 
   @override
   String get phoneSelfCheckSaveFailed => '报告保存失败。';
@@ -23008,7 +23008,7 @@ class L10nZh extends L10n {
 
   @override
   String get updateExportApkMessage =>
-      '会把这次下载并校验过的安装包复制到「下载/DSH-Go」，可以用 MT 管理器之类的工具重新签名后再装。\n\n重新签名后，手机上的签名和官方包不同，App 内更新会一直提示「签名不一致」，以后每次更新都要这样手动重签安装。\n\n如果只是系统拦着装不上（小米等机型），先试「安装路线」里的 Shizuku 或本机 ADB，那条路不用重新签名。';
+      '会把这次下载并校验过的安装包复制到「下载/DSH-Loop」，可以用 MT 管理器之类的工具重新签名后再装。\n\n重新签名后，手机上的签名和官方包不同，App 内更新会一直提示「签名不一致」，以后每次更新都要这样手动重签安装。\n\n如果只是系统拦着装不上（小米等机型），先试「安装路线」里的 Shizuku 或本机 ADB，那条路不用重新签名。';
 
   @override
   String updateExportApkDone(String path) {
@@ -23050,7 +23050,7 @@ class L10nZh extends L10n {
   }
 
   @override
-  String get aboutSelfhostHint => '自举更新：新构建的包放在 /sdcard/Download/DSH-Go/，用文件管理器打开即可覆盖安装（数据保留）。';
+  String get aboutSelfhostHint => '自举更新：新构建的包放在 /sdcard/Download/DSH-Loop/，用文件管理器打开即可覆盖安装（数据保留）。';
 
   @override
   String get usageStatsTitle => '发送匿名使用统计';

@@ -17,21 +17,21 @@
 
 ```bash
 # 构建（约 7~8 分钟，产出 ~301MB）
-cd /root/build/dsh-Go
+cd /root/DSH-Loop
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 FLUTTER_ROOT=/opt/flutter \
        ANDROID_HOME=/opt/android-sdk ANDROID_SDK_ROOT=/opt/android-sdk \
        PATH=/opt/flutter/bin:/opt/gradle-9.3.1/bin:/opt/android-sdk/platform-tools:/usr/local/bin:$PATH
 bash fix/04-build-apk-arm64.sh --debug
 
 # 安装（独立包名 com.lizow.dsh.debug，不动 release，不中断会话）
-adb install -r /sdcard/Download/DSH-Go/app-arm64-debug.apk
+adb install -r /sdcard/Download/DSH-Loop/app-arm64-debug.apk
 ```
 
 用户打开桌面「DSH Go 调试」体验；AI 侧监控：
 
 ```bash
 adb logcat -c && adb logcat | grep -aE "Snapshot not compatible|CreateRootIsolate|FATAL|AndroidRuntime|flutter"
-adb exec-out screencap -p > /sdcard/Download/DSH-Go/shot-$(date +%H%M%S).png
+adb exec-out screencap -p > /sdcard/Download/DSH-Loop/shot-$(date +%H%M%S).png
 adb shell 'dumpsys package com.lizow.dsh.debug | grep -E "versionCode|versionName"'
 adb shell 'pidof com.lizow.dsh.debug'
 ```
@@ -40,8 +40,8 @@ adb shell 'pidof com.lizow.dsh.debug'
 
 ```bash
 # 增量约 3 分钟；全量（FULL=1）约 18 分钟（AOT 占大头）
-cd /root/build/dsh-Go && bash fix/04-build-apk-arm64.sh --release
-bash fix/99-verify-apk.sh /sdcard/Download/DSH-Go/app-arm64-release.apk
+cd /root/DSH-Loop && bash fix/04-build-apk-arm64.sh --release
+bash fix/99-verify-apk.sh /sdcard/Download/DSH-Loop/app-arm64-release.apk
 ```
 
 发版安装前检查三项：同包名 `com.lizow.dsh`、签名 `4db3353…`、versionCode 大于已装版本。
@@ -63,7 +63,7 @@ adb devices
 1. **后台冻结**：App 进后台会被 Android 冻结，整个 proot 进程树停止调度 → 服务不可用、AI 无法实时监控。
    缓解：开发者选项「暂停执行已缓存的应用」→ 已停用；DSH Go 省电策略 → 无限制；最近任务加锁。
    判断方法：后台跑心跳日志（每 2s 一行），出现断档即为冻结。
-2. **release 构建依赖缓存**：`/root/build/dsh-Go` 的 `build/`、`.dart_tool/`、`~/.gradle`、`~/.pub-cache` 不要删，
+2. **release 构建依赖缓存**：工程内的 `app/build/`、`.dart_tool/`、`~/.gradle`、`~/.pub-cache` 不要删，
    删了下次 release 从 ~3 分钟回到 ~18 分钟（AOT 无增量）。
 3. **NDK 包装**：用 `/root/fix-ndk-abi-corrected.sh`；原 `fix/03` 会穿透 NDK 的符号链接，写坏 clang/llvm-ar。
 4. **aapt2**：AGP 从 Maven 下的 aapt2 是 x86_64，经 `/opt/aapt2-maven/aapt2` 包装，

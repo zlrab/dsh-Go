@@ -2,7 +2,7 @@
 
 > 环境：小米 14 / Android 15 / proot Ubuntu 24.04 (aarch64)，无 root、无 Docker、无 systemd
 > 结果：**`flutter build apk --debug --flavor arm64` 成功**，产出 149MB arm64 APK，用自有 keystore 签名
-> 实测：Gradle 构建 11m03s（首次，含依赖下载）；产物 `/sdcard/Download/DSH-Go/dsh-go-arm64-debug.apk`
+> 实测：Gradle 构建 11m03s（首次，含依赖下载）；产物 `/sdcard/Download/DSH-Loop/dsh-go-arm64-debug.apk`
 
 ---
 
@@ -118,8 +118,8 @@ exec /usr/bin/clang -rtlib=compiler-rt --unwindlib=libunwind -resource-dir="$RES
 ## 4. 怎么用
 
 ```bash
-# /sdcard 不能设执行位，必须用 bash 调用
-cd /sdcard/DshWorkSpace/AndroidProjects/dsh-Go
+# 仓库在 /root（有执行位）；脚本仍统一用 bash 调用
+cd /root/DSH-Loop
 
 bash fix/00-check-env.sh      # 体检：缺什么一目了然
 bash fix/01-setup-flutter-arm64.sh   # 装 Flutter + arm64 Dart + 打补丁（幂等）
@@ -128,8 +128,8 @@ bash fix/03-patch-ndk-abi.sh         # 给 NDK 27.2 / 28.2 打 ABI 感知包装�
 bash fix/06-setup-box64.sh           # box64（release 的 AOT 编译器靠它模拟 x86_64）
 bash fix/07-install-aot-wrapper.sh   # 把 gen_snapshot 接到 box64
 bash fix/10-adapt-host-tools.sh      # x86libs / qemu10 / aapt2 override / cmake 包装 / sqlite3 离线补丁 / 环境变量
-bash runtime/build-runtime.sh arm64-v8a   # 自建运行时资产（必须在 /root 副本里跑）
-bash fix/04-build-apk-arm64.sh       # 同步到 /root、构建、复制 APK 到 /sdcard
+bash runtime/build-runtime.sh arm64-v8a   # 自建运行时资产（原地跑；放 /sdcard 会慢好几倍）
+bash fix/04-build-apk-arm64.sh       # 原地构建，复制 APK 到 /sdcard
 bash fix/99-verify-apk.sh            # 校验签名/包名/架构
 ```
 
@@ -140,7 +140,7 @@ bash fix/99-verify-apk.sh            # 校验签名/包名/架构
 > **fix/03 已于 2026-11-15 修正**：NDK 28.2 的 `clang`/`clang++`/`llvm-strip`/`llvm-readelf` 都是符号链接，
 > 旧版脚本 `cat >` 会穿透链接写坏真二进制（症状：CMake 报「The C compiler is a C++ compiler」）。
 
-产物：`/sdcard/Download/DSH-Go/dsh-go-arm64-debug.apk`
+产物：`/sdcard/Download/DSH-Loop/dsh-go-arm64-debug.apk`
 
 ---
 
@@ -152,7 +152,7 @@ bash fix/99-verify-apk.sh            # 校验签名/包名/架构
 | **release APK（AOT）** | ✅ **已跑通**：box64 全量构建 392s，产物与 qemu 逐字节一致，装机后正常渲染。详见第 10、12 节 |
 | 增量构建 | debug 重建 ~3 分钟（依赖已缓存）；release 全量 6~7 分钟（box64） |
 | 装机验证 | ✅ 已做：debug 与 release 均装机并通过 `pidof`/日志/截图验证 |
-| 工程位置 | 源码在 `/sdcard`（防卸载丢），**构建必须在 `/root/build/dsh-Go` 副本**（FUSE 不能执行 gradlew） |
+| 工程位置 | 源码在 `/root/DSH-Loop`（ext4，有执行位）→ **源码目录即构建目录，原地构建**；远端在 GitHub，`/sdcard` 只放 APK 与签名密钥 |
 | 签名 | `keyStores/lizow.keystore`，alias `lizow`，详见同级 `keyStores/keyinfo.yaml` |
 
 ### 回滚
@@ -395,11 +395,17 @@ fi
 （`-tb-size` 本身是合法参数，但在本机 33 分钟基准里三组始终同步、未跑完即被叫停，
 没有观察到可信收益；真正的量级提升来自换 box64。）
 
-### 11.1 增量同步与构建缓存（2026-11-15 修正）
+### 11.1 原地构建与构建缓存（2026-11-16 迁移后）
 
-`04` 早期版本用 `rm -rf` 覆盖同步，等于每次全量重建。现改为 **rsync 增量同步**，
-并显式排除 `build/`、`.dart_tool/`、`android/.cxx/`：只同步变化的源码，缓存全部保留。
-需要强制全量时用 `FULL=1 bash 04-build-apk-arm64.sh --release`。
+仓库搬进 App 工作区（`/root/DSH-Loop`，ext4 有执行位）后，**源码目录就是构建目录**：
+不再有 rsync 副本，`build/`、`.dart_tool/`、`android/.cxx/` 就地保留，改完源码直接重建。
+需要强制全量时用 `FULL=1 bash fix/04-build-apk-arm64.sh --release`。
+（仓库被迫放在 `/sdcard` 这类 noexec 挂载上时，`04` 仍支持副本模式：`SRC=… DST=/root/build/dsh-Go`。）
+
+**pub 依赖走离线缓存**：`04` 用 `flutter pub get --offline` 解析，命中 `pubspec.lock` 锁定的版本——
+约 40 秒，且不会把 lock 里的 `url: pub.dev` 改成镜像 host（改了就不该提交）。
+新增/升级依赖时离线会失败，脚本回退镜像联网，并在跑完后 `git checkout` 还原 `pubspec.lock`；
+若新包不在本地缓存，先跑一次 `bash fix/02-setup-mirrors.sh`（第 4 步把镜像缓存补进 pub.dev 缓存）。
 
 实测（arm64 手机，box64）：
 

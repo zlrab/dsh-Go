@@ -298,7 +298,7 @@ class MediaPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandle
         const val CHANNEL = "dsh/media"
 
         /** The gallery album: `Pictures/DSH Loop`, the app's name as galleries show it (downloads go to
-         *  `Download/DSH-Go`, a path the agent types). */
+         *  `Download/DSH-Loop`, a path the agent types). */
         private const val ALBUM = "DSH Loop"
         private const val STORAGE_REQUEST = 0x5d7
 

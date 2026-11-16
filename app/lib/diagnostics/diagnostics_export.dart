@@ -75,7 +75,7 @@ class DiagnosticsExporter {
   }
 
   /// A fresh bundle in the phone's Downloads; returns where
-  /// (`Download/DSH-Go/dsh-go-diagnostics-….zip`).
+  /// (`Download/DSH-Loop/dsh-go-diagnostics-….zip`).
   Future<String> saveToDownloads({void Function(DiagnosticsStep step)? onStep}) async {
     final dir = await Directory('${(await _cacheRoot()).path}/diagnostics').create(recursive: true);
     // Another widget may build a bundle while the native worker still reads ours.
@@ -102,7 +102,7 @@ String diagnosticsErrorText(Object error) => switch (error) {
   _ => appL10n.stateDiagnosticsExportFailed,
 };
 
-/// `已存到 下载/DSH-Go/…` for a saved bundle.
+/// `已存到 下载/DSH-Loop/…` for a saved bundle.
 String diagnosticsSavedText(String where) =>
     appL10n.stateDiagnosticsSaved(where.replaceFirst(RegExp(r'^Download/'), appL10n.stateDownloadsPrefix));
 

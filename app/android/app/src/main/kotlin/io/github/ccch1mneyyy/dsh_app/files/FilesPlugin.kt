@@ -37,10 +37,10 @@ import kotlin.concurrent.thread
  * MethodChannel `dsh/files`.
  *
  * - `resolveGuest {path}` → host path of a local-engine file, or null.
- * - `listOutputs {depth}` → `[{path, bytes, modified}]` under `/sdcard/Download/DSH-Go`, then
+ * - `listOutputs {depth}` → `[{path, bytes, modified}]` under `/sdcard/Download/DSH-Loop`, then
  *   the old `/sdcard/Download/DSH` (guest paths; empty without phone storage).
  * - `open {path, mime, name, chooser}` → ACTION_VIEW through this app's FileProvider.
- * - `saveToDownloads {path, name, mime}` → shown location (`Download/DSH-Go/x.pdf`):
+ * - `saveToDownloads {path, name, mime}` → shown location (`Download/DSH-Loop/x.pdf`):
  *   MediaStore Downloads on API 29+, the public Downloads directory before
  *   (asks for the storage permission when needed).
  *
@@ -300,7 +300,7 @@ class FilesPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandle
             }
         }
         // The old folder too: earlier chats' files, and a user's own AGENTS.md that still names it.
-        for (folder in listOf(SUBDIR, LEGACY_SUBDIR)) walk(File(hostRoot, "${Environment.DIRECTORY_DOWNLOADS}/$folder"), 1)
+        for (folder in listOf(SUBDIR) + LEGACY_SUBDIRS) walk(File(hostRoot, "${Environment.DIRECTORY_DOWNLOADS}/$folder"), 1)
         return out
     }
 
@@ -338,11 +338,11 @@ class FilesPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandle
 
     companion object {
         const val CHANNEL = "dsh/files"
-        /** `Download/DSH-Go`: saved files, and the local engine's output folder (GuestSetup). No
+        /** `Download/DSH-Loop`: saved files, and the local engine's output folder (GuestSetup). No
          *  space: the agent types this path into shell commands. */
-        private const val SUBDIR = "DSH-Go"
-        /** The folder before the app was called DSH Loop; nothing is written there any more. */
-        private const val LEGACY_SUBDIR = "DSH"
+        private const val SUBDIR = "DSH-Loop"
+        /** Folders from before the rename: earlier chats' files, and a user's own AGENTS.md. */
+        private val LEGACY_SUBDIRS = listOf("DSH-Go", "DSH")
         private const val STORAGE_REQUEST = 0x5d6
         private const val MAX_OUTPUTS = 500
 

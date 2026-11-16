@@ -1,7 +1,8 @@
 #!/bin/bash
 # 校验构建出来的 APK：签名、包名、架构、是否含我们期望的组件
 set -euo pipefail
-APK="${1:-/root/build/dsh-Go/app/build/app/outputs/flutter-apk/app-arm64-debug.apk}"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APK="${1:-$REPO/app/build/app/outputs/flutter-apk/app-arm64-debug.apk}"
 BT=/opt/android-sdk/build-tools/36.0.0
 AAPT2=/opt/android-env/bin/aapt2
 [ -f "$APK" ] || { echo "找不到 APK：$APK"; exit 1; }

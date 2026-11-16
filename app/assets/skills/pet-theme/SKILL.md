@@ -38,7 +38,7 @@ description: 把宠物素材做成 dsh-go 可导入的宠物包：clawd-on-desk 
 
        cd /tmp/pet-pack/<id> && python3 -m zipfile -c <输出路径>/<id>.zip pack.json *.png
 
-   手机输出到 /sdcard/Download/DSH-Go/。
+   手机输出到 /sdcard/Download/DSH-Loop/。
 6. 收尾：告诉用户导入路径，作者与授权显示在宠物页底部；只做自用转换，第三方素材
    （尤其 CC BY-NC-SA 同人作品）不要打包进发行版或市场。
 

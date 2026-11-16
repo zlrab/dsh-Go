@@ -7727,7 +7727,7 @@ abstract class L10n {
   /// No description provided for @chatDownloadsFolderHint.
   ///
   /// In zh, this message translates to:
-  /// **'下载/DSH-Go 文件夹'**
+  /// **'下载/DSH-Loop 文件夹'**
   String get chatDownloadsFolderHint;
 
   /// No description provided for @chatSavedToDownloadsPath.
@@ -15197,7 +15197,7 @@ abstract class L10n {
   /// No description provided for @featuresExportDownloadsHint.
   ///
   /// In zh, this message translates to:
-  /// **'存进 下载/DSH-Go'**
+  /// **'存进 下载/DSH-Loop'**
   String get featuresExportDownloadsHint;
 
   /// No description provided for @featuresExportContents.
@@ -18683,7 +18683,7 @@ abstract class L10n {
   /// No description provided for @phoneDiagnosticsSaveHint.
   ///
   /// In zh, this message translates to:
-  /// **'存进 下载/DSH-Go'**
+  /// **'存进 下载/DSH-Loop'**
   String get phoneDiagnosticsSaveHint;
 
   /// No description provided for @phoneDiagnosticsNote.
@@ -21569,7 +21569,7 @@ abstract class L10n {
   /// No description provided for @phoneSelfCheckSaved.
   ///
   /// In zh, this message translates to:
-  /// **'报告已存入下载/DSH-Go。'**
+  /// **'报告已存入下载/DSH-Loop。'**
   String get phoneSelfCheckSaved;
 
   /// No description provided for @phoneSelfCheckSaveFailed.
@@ -42059,7 +42059,7 @@ abstract class L10n {
   /// No description provided for @updateExportApkMessage.
   ///
   /// In zh, this message translates to:
-  /// **'会把这次下载并校验过的安装包复制到「下载/DSH-Go」，可以用 MT 管理器之类的工具重新签名后再装。\n\n重新签名后，手机上的签名和官方包不同，App 内更新会一直提示「签名不一致」，以后每次更新都要这样手动重签安装。\n\n如果只是系统拦着装不上（小米等机型），先试「安装路线」里的 Shizuku 或本机 ADB，那条路不用重新签名。'**
+  /// **'会把这次下载并校验过的安装包复制到「下载/DSH-Loop」，可以用 MT 管理器之类的工具重新签名后再装。\n\n重新签名后，手机上的签名和官方包不同，App 内更新会一直提示「签名不一致」，以后每次更新都要这样手动重签安装。\n\n如果只是系统拦着装不上（小米等机型），先试「安装路线」里的 Shizuku 或本机 ADB，那条路不用重新签名。'**
   String get updateExportApkMessage;
 
   /// No description provided for @updateExportApkDone.
@@ -42131,7 +42131,7 @@ abstract class L10n {
   /// No description provided for @aboutSelfhostHint.
   ///
   /// In zh, this message translates to:
-  /// **'自举更新：新构建的包放在 /sdcard/Download/DSH-Go/，用文件管理器打开即可覆盖安装（数据保留）。'**
+  /// **'自举更新：新构建的包放在 /sdcard/Download/DSH-Loop/，用文件管理器打开即可覆盖安装（数据保留）。'**
   String get aboutSelfhostHint;
 
   /// No description provided for @usageStatsTitle.

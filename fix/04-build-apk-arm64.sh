@@ -1,41 +1,67 @@
 #!/bin/bash
 # 在 arm64 手机上构建 dsh-Go APK
-#   bash 04-build-apk-arm64.sh            # debug
-#   bash 04-build-apk-arm64.sh --release  # release（AOT 未验证，见 README）
-# 关键点：/sdcard 是 FUSE（不能执行 gradlew）→ 源码留在 /sdcard，构建在 /root 副本进行
+#   bash fix/04-build-apk-arm64.sh            # debug
+#   bash fix/04-build-apk-arm64.sh --release  # release（AOT 未验证，见 README）
+# 布局：仓库在 /root/DSH-Loop（ext4，有执行位）→ **源码目录即构建目录，原地构建**。
+# 只有万不得已把仓库放在 noexec 挂载（如 /sdcard）时，才用副本模式：
+#   SRC=/sdcard/.../dsh-Go DST=/root/build/dsh-Go bash fix/04-build-apk-arm64.sh
 set -euo pipefail
 MODE="${1:-debug}"
-SRC="${SRC:-/sdcard/DshWorkSpace/AndroidProjects/dsh-Go}"
-DST="${DST:-/root/build/dsh-Go}"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SRC="${SRC:-$REPO}"
+DST="${DST:-$SRC}"
 KS="${KS:-/sdcard/DshWorkSpace/AndroidProjects/keyStores/lizow.keystore}"
 KS_PASS="${KS_PASS:-Lizow123.}"
 KS_ALIAS="${KS_ALIAS:-lizow}"
-export HOME=/root FLUTTER_ROOT=/opt/flutter ANDROID_HOME=/opt/android-sdk ANDROID_SDK_ROOT=/opt/android-sdk
+# 非登录 shell 不会加载 /etc/profile.d：把工具链环境显式带进来（有 profile 复用，缺了用兜底）
+[ -f /etc/profile.d/dsh-toolchain.sh ] && . /etc/profile.d/dsh-toolchain.sh
+export HOME=/root
+export FLUTTER_ROOT="${FLUTTER_ROOT:-/opt/flutter}"
+export ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
+export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-/opt/android-sdk}"
+export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-17-openjdk-arm64}"
+# pub 镜像只在「联网回退」时用；平时 pub 走离线缓存（--offline），不改写 pubspec.lock
+PUB_MIRROR="${PUB_MIRROR:-https://pub.flutter-io.cn}"
+export FLUTTER_STORAGE_BASE_URL="${FLUTTER_STORAGE_BASE_URL:-https://storage.flutter-io.cn}"
 # AOT 编译器走 box64（比 qemu 快约 6 倍；产物与 qemu 逐字节一致）
 export BOX64="${BOX64:-1}"
-export PATH="/opt/gradle-9.3.1/bin:/usr/local/bin:$PATH"
+export PATH="/opt/flutter/bin:/opt/gradle-9.3.1/bin:/opt/android-sdk/platform-tools:/usr/local/bin:$PATH"
 
 log() { printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 
-log "同步源码到 $DST（保留构建缓存）"
-mkdir -p "$DST"
-# rsync 做增量同步：只更新变化的源码，绝不碰 build/ 与 .dart_tool/，
-# 否则每次都要重跑整个 AOT（约 11 分钟）和全部 Gradle 任务。
-command -v rsync >/dev/null || { log "安装 rsync"; apt-get install -y rsync >/dev/null 2>&1 || true; }
-if command -v rsync >/dev/null; then
-  for d in app packages; do
-    mkdir -p "$DST/$d"
-    rsync -a --delete \
-      --exclude 'build/' --exclude '.dart_tool/' --exclude '.git/' \
-      --exclude 'android/.gradle/' --exclude 'android/.cxx/' --exclude 'android/app/.cxx/' \
-      "$SRC/$d/" "$DST/$d/"
-  done
+if [ "$SRC" != "$DST" ]; then
+  log "同步源码到 $DST（保留构建缓存）"
+  mkdir -p "$DST"
+  # rsync 做增量同步：只更新变化的源码，绝不碰 build/ 与 .dart_tool/，
+  # 否则每次都要重跑整个 AOT（约 11 分钟）和全部 Gradle 任务。
+  command -v rsync >/dev/null || { log "安装 rsync"; apt-get install -y rsync >/dev/null 2>&1 || true; }
+  if command -v rsync >/dev/null; then
+    for d in app packages; do
+      mkdir -p "$DST/$d"
+      rsync -a --delete \
+        --exclude 'build/' --exclude '.dart_tool/' --exclude '.git/' \
+        --exclude 'android/.gradle/' --exclude 'android/.cxx/' --exclude 'android/app/.cxx/' \
+        "$SRC/$d/" "$DST/$d/"
+    done
+  else
+    log "没有 rsync，退化为覆盖复制（仍不清缓存目录）"
+    for d in app packages; do
+      tar cf - -C "$SRC" --exclude="$d/build" --exclude="$d/.dart_tool" \
+          --exclude="$d/.git" --exclude="$d/android/.cxx" "$d" | tar xf - -C "$DST"
+    done
+  fi
 else
-  log "没有 rsync，退化为覆盖复制（仍不清缓存目录）"
-  for d in app packages; do
-    tar cf - -C "$SRC" --exclude="$d/build" --exclude="$d/.dart_tool" \
-        --exclude="$d/.git" --exclude="$d/android/.cxx" "$d" | tar xf - -C "$DST"
-  done
+  log "原地构建：$DST（源码目录即可执行，跳过同步）"
+fi
+# 执行位自检：noexec 挂载（如 /sdcard）上 gradlew 一定跑不起来，早失败早解释
+PROBE="$DST/.exec-probe.$$"
+if printf '#!/bin/sh\nexit 0\n' > "$PROBE" 2>/dev/null && chmod +x "$PROBE" 2>/dev/null && "$PROBE" 2>/dev/null; then
+  rm -f "$PROBE"
+else
+  rm -f "$PROBE"
+  log "错误：$DST 所在挂载没有执行权限，无法运行 gradlew"
+  log "  → 把仓库放到 /root 下（推荐），或用副本模式：SRC=$DST DST=/root/build/dsh-Go"
+  exit 1
 fi
 if [ "${FULL:-0}" = "1" ]; then
   log "FULL=1：清理构建缓存（全量重建）"
@@ -44,7 +70,7 @@ fi
 [ -f "$DST/app/android/gradlew.disabled" ] && mv "$DST/app/android/gradlew.disabled" "$DST/app/android/gradlew"
 chmod +x "$DST/app/android/gradlew" 2>/dev/null || true
 
-log "签名配置（构建副本用绝对路径）"
+log "签名配置（写绝对路径，避免仓库位置变化）"
 {
   echo "storeFile=$KS"
   echo "storePassword=$KS_PASS"
@@ -83,8 +109,16 @@ if [ ! -x "$AOTW" ]; then
 fi
 [ -x /opt/box64-bin/usr/bin/box64 ] || echo "  ! box64 未安装，release 构建会退回 qemu（慢 6 倍）：bash $(dirname "$0")/06-setup-box64.sh"
 
-log "pub get"
-cd "$DST/app" && flutter pub get
+log "pub get --offline（离线解析：快，且不改写 pubspec.lock）"
+cd "$DST/app"
+if ! env -u PUB_HOSTED_URL flutter pub get --offline; then
+  log "  ! 离线缺包（多半新增/升级了依赖），回退镜像联网"
+  PUB_HOSTED_URL="$PUB_MIRROR" flutter pub get
+  if git -C "$DST" rev-parse --git-dir >/dev/null 2>&1; then
+    git -C "$DST" checkout -- app/pubspec.lock
+    log "  已还原 app/pubspec.lock（镜像会改写 host 与版本；要升级依赖请单独提交）"
+  fi
+fi
 
 if [ "$MODE" = "--release" ]; then
   TASK=assembleArm64Release
@@ -107,7 +141,8 @@ fi
 
 log "产物"
 ls -lh "$OUT"
-mkdir -p /sdcard/Download/DSH-Go
-cp -f "$OUT" "/sdcard/Download/DSH-Go/$(basename "$OUT")"
-echo "已复制到 /sdcard/Download/DSH-Go/$(basename "$OUT")"
+mkdir -p /sdcard/Download/DSH-Loop
+touch /sdcard/Download/DSH-Loop/.nomedia 2>/dev/null || true   # 别让相册索引产物预览图
+cp -f "$OUT" "/sdcard/Download/DSH-Loop/$(basename "$OUT")"
+echo "已复制到 /sdcard/Download/DSH-Loop/$(basename "$OUT")"
 echo "下一步：bash fix/99-verify-apk.sh"

@@ -18,13 +18,13 @@
 
 | 能力 | 位置 | 说明 |
 |---|---|---|
-| 签名配置 | `app/android/key.properties` | `storeFile → keyStores/lizow.keystore`，alias `lizow`；在源码工程里，不随构建副本丢失 |
+| 签名配置 | `app/android/key.properties` | `storeFile → keyStores/lizow.keystore`，alias `lizow`；在源码工程里（`gitignore`），构建脚本每次按绝对路径重写 |
 | 版本号 | `app/android/app/build.gradle.kts` `buildMinuteVersionCode()` | `(year-2026)*1e8 + MMDDhhmm`（UTC+8），**按分钟单调递增**，与 `tooling/build_number.py` 同编码 |
-| 普通安装 | `app/lib/update/installer.dart` → `install(path)` | PackageInstaller session；`ApkInstaller.kt` 负责实现 |
-| 安装前校验 | `installer.dart` `ApkInspection` | 已含 `valid / packageName / versionCode / samePackage / signatureMatches` |
-| 签名比对实现 | `update/ApkInstaller.kt` `signersMatch()` / `fingerprint()` | 取 APK 签名与已安装指纹集合比较 |
-| 静默安装 | `app/lib/update/privileged_installer.dart` | Shizuku 通道；结果含 `signature` / `downgrade` / `conflict` 分类 |
-| 增量更新 | `app/lib/update/delta.dart` | 已支持 delta 补丁（自举可暂不用） |
+| 普通安装 | **fork 已移除** | 应用内安装链路删光，安装走系统安装器 / `adb install` |
+| 安装前校验 | **fork 已移除** | 原 `ApkInspection` 随更新链路删除 |
+| 签名比对实现 | **fork 已移除** | `ApkInstaller.kt` 现在只提供 `info()`（版本/ABI/剩余空间） |
+| 静默安装 | **fork 已移除** | 不再提供 Shizuku 安装通道 |
+| 增量更新 | `app/lib/update/delta.dart`（保留未接入） | 上游代码留着减小合并冲突，自举用不到 |
 | 构建脚本 | `fix/04-build-apk-arm64.sh` | 默认 box64；`fix/06`/`07` 装模拟层与包装 |
 | 构建性能 | 本机实测 | 全量 release 392s；AOT 686s（与 3 个 qemu 抢 CPU 时测） |
 | 产物一致性 | 本机实测 | box64 与 qemu 产出的 `libapp.so` **逐字节相同**（58,012,344 B） |
@@ -32,21 +32,20 @@
 ## 2. 架构：三层 + 两阶段
 
 ```
-┌─ 引导层 stage0 ─────────────────────────────┐
-│ /sdcard/DSH-Go/toolchain.tar.zst            │  Flutter SDK + Android SDK/NDK + gradle 缓存
-│ 恢复脚本：解包 → 校验版本 → 可用             │  目标：清空 App 数据后 10 分钟内重建
-└─────────────────────────────────────────────┘
-┌─ 构建层 ────────────────────────────────────┐
-│ 源码 /sdcard/DshWorkSpace/AndroidProjects/  │  ← 用户改代码的地方
-│ 工作副本 /root/build/dsh-Go（FUSE 不能执行） │  ← rsync 同步
-│ AOT: box64 跑官方 x64 gen_snapshot          │
-│ 产出：app-arm64-release.apk（自有签名）      │
-└─────────────────────────────────────────────┘
-┌─ 安装层 ────────────────────────────────────┐
-│ 预检 → 普通安装（系统确认框）                │
-│      └→ 或 Shizuku 静默安装                 │
-│ 安装后由系统杀旧进程，新版本冷启动           │
-└─────────────────────────────────────────────┘
+┌─ 引导层 stage0 ──────────────────────────┐
+│ /sdcard/DSH-Loop/toolchain.tar.zst         │  Flutter SDK + Android SDK/NDK + gradle 缓存
+│ 恢复脚本：解包 → 校验版本 → 可用         │  目标：清空 App 数据后 10 分钟内重建
+└──────────────────────────────────────────┘
+┌─ 构建层 ─────────────────────────────────┐
+│ 仓库 /root/DSH-Loop                      │  ← 用户改代码的地方（源码=构建目录）
+│ 远端 github.com/zlrab/dsh-Go             │  ← SSH 推送备份
+│ AOT: box64 跑官方 x64 gen_snapshot       │
+│ 产出：app-arm64-release.apk（自有签名）  │
+└──────────────────────────────────────────┘
+┌─ 安装层 ─────────────────────────────────┐
+│ 预检 → 普通安装（系统确认框）            │
+│     └→ 或 Shizuku 静默安装               │
+└──────────────────────────────────────────┘
 ```
 
 ### 阶段 1：单包自构建（M0–M2）
@@ -67,11 +66,11 @@ com.lizow.dsh.builder  ← 引导器：同步源码 → 构建 → 安装主 App
 用户点「构建并更新」
   → 前台服务启动（startForeground + PARTIAL_WAKE_LOCK，防 6 分钟被杀）
   → fix/08-self-build.sh
-      1. rsync 源码 → /root/build/dsh-Go
+      1. 校验工作区干净（源码目录即构建目录，无需同步）
       2. 检查 key.properties / runtime 资产 / 磁盘余量（≥ 6GB）
       3. flutter build apk --release --flavor arm64 --target-platform android-arm64
       4. 校验产物：包名 == com.lizow.dsh、签名指纹匹配、versionCode > 已安装
-      5. 复制到 /sdcard/DSH-Go/self-update.apk，保留上一版为 last-good.apk
+      5. 复制到 /sdcard/DSH-Loop/self-update.apk，保留上一版为 last-good.apk
   → App 收到路径 → ApkInspection → installer.install(path) 或 Shizuku 静默
   → 系统替换 → 冷启动新版本
 ```
@@ -115,7 +114,7 @@ com.lizow.dsh.builder  ← 引导器：同步源码 → 构建 → 安装主 App
 - 前台服务 + `PARTIAL_WAKE_LOCK`（6.5 分钟量级，息屏会拖慢甚至被杀）
 - 进度回显：解析 `flutter build` 输出阶段（resolving → AOT → packaging）
 - 资源门槛：构建期内存峰值实测约 8GB（15GB 机器）；磁盘需 ≥ 6GB（`build/` 会涨到 ~2.8GB，加产物 278MB）
-- 并发锁：`/root/build/.lock`，防止两个构建互相踩
+- 并发锁：工程根 `.build.lock`（M1 设计，未实现），防止两个构建互相踩
 
 ### 5.4 安装通道选择
 | 通道 | 条件 | 体验 |
@@ -127,7 +126,7 @@ com.lizow.dsh.builder  ← 引导器：同步源码 → 构建 → 安装主 App
 
 ### 5.5 工具链持久化（stage0）
 - `/opt/flutter`（2.5GB）、`/opt/android-sdk`、`/root/.gradle` 都在 **App 私有数据**里，卸载即丢
-- 归档到 `/sdcard/DSH-Go/toolchain-<ver>.tar.zst`，含版本清单
+- 归档到 `/sdcard/DSH-Loop/toolchain-<ver>.tar.zst`，含版本清单
 - 恢复时间目标：解包 + 校验 ≤ 10 分钟（不需要重新下载）
 
 ## 6. 里程碑
@@ -143,7 +142,7 @@ com.lizow.dsh.builder  ← 引导器：同步源码 → 构建 → 安装主 App
 
 1. **builder 包如何拿 keystore**？同 keystore 文件在 /sdcard，两个包都能读 → 可行，但等于明文密钥扩大暴露面。是否改为"builder 只打包不签名，签名由主 App 完成"？
 2. **崩溃自动检测**：能否用「启动后 N 秒内写探针文件」+ builder 检查探针缺失来自动回滚？
-3. **源码同步方向**：主 App 内编辑的代码在 `/sdcard` 源码树；构建副本在 `/root`。单向 rsync 还是双向同步？
+3. ~~**源码同步方向**~~：已解决——仓库在 `/root/DSH-Loop`，源码目录即构建目录，无同步。
 4. **AOT 缓存**：改一行 Dart 也要全量 AOT（6 分钟）。能否用 `--track-widget-creation=false` + 增量 kernel 缩短到 2–3 分钟？
 5. **是否保留 delta 更新**：自举产物在本地，delta 只剩"从 last-good 到新版本"的差量意义，收益低。
 
